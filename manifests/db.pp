@@ -13,37 +13,51 @@ exec {"apt-get update":
 Exec["apt-get update"] -> Package <||>
 ## end of magic
 
-package { "mysql-server":
+class mysql {
+  package { "mysql-server":
     ensure => installed,
-}
+  }
 
-file {"/etc/mysql/conf.d/allow_external.cnf":
+  file {"/etc/mysql/conf.d/allow_external.cnf":
     owner =>  mysql,
     group =>  mysql,
     mode  =>  0644,
     content =>  template("/vagrant/allow_external.cnf"),
     require => Package["mysql-server"],
     notify => Service["mysql"],
-}
+  }
 
-service { "mysql":
+  service { "mysql":
     ensure  =>  running,
     enable  => true,
     hasstatus => true,
     hasrestart  => true,
-    require =>  Package["mysql-server"]
+    require =>  Package["mysql-server"],
+  }
 }
 
-exec {"create-opencart-db":
-    unless  => "mysqlshow -uroot opencart",
-    command => "mysqladmin -uroot create opencart",
+include mysql
+
+define setupdb($db, $username, $password) {
+
+  exec {"create-db-$db":
+    unless  => "mysqlshow -uroot $db",
+    command => "mysqladmin -uroot create $db",
     path => "/usr/bin/",
-    require => Service["mysql"],
+    require => Class["mysql"],
+  }
+
+  exec {"create-db-user-$db-$username":
+    unless  => "mysqlshow -u$username -p$password $db",
+    command => "mysql -uroot -e \"grant all on $db.* to '$username'@'%' identified by '$password'; grant all on $db.* to '$username'@'localhost' identified by '$password';\"",
+    path => "/usr/bin/",
+    require => Exec["create-db-$db"],
+  }
+
 }
 
-exec {"grant-opencart-db":
-    unless  => "mysqlshow -uopencart -popenpass opencart",
-    command => "mysql -uroot -e \"grant all on opencart.* to 'opencart'@'%' identified by 'openpass'; grant all on opencart.* to 'opencart'@'localhost' identified by 'openpass';\"",
-    path => "/usr/bin/",
-    require => Exec["create-opencart-db"],
+setupdb {"opencart-db":
+    db  =>  "opencart",
+    username  =>  "opencart",
+    password  =>  "openpass",
 }

@@ -49,7 +49,8 @@ Vagrant.configure("2") do |config|
 
       db.vm.provision :puppet do |puppet|
           puppet.manifest_file = "db.pp"
-          puppet.options="--verbose --debug"
+#          puppet.options="--verbose --debug"
+          puppet.options="--verbose"
       end
   end
 
