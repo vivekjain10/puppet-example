@@ -33,3 +33,9 @@ service { "mysql":
     hasrestart  => true,
     require =>  Package["mysql-server"]
 }
+
+exec {"create opencart database":
+    unless  => "/usr/bin/mysqlshow -uroot opencart",
+    command => "/usr/bin/mysqladmin -uroot create opencart",
+    require => Service["mysql"],
+}
