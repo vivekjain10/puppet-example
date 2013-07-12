@@ -34,9 +34,16 @@ service { "mysql":
     require =>  Package["mysql-server"]
 }
 
-exec {"create opencart database":
+exec {"create-opencart-db":
     unless  => "mysqlshow -uroot opencart",
     command => "mysqladmin -uroot create opencart",
     path => "/usr/bin/",
     require => Service["mysql"],
+}
+
+exec {"grant-opencart-db":
+    unless  => "mysqlshow -uopencart -popenpass opencart",
+    command => "mysql -uroot -e \"grant all on opencart.* to 'opencart'@'%' identified by 'openpass'; grant all on opencart.* to 'opencart'@'localhost' identified by 'openpass';\"",
+    path => "/usr/bin/",
+    require => Exec["create-opencart-db"],
 }
