@@ -61,6 +61,7 @@ Vagrant.configure("2") do |config|
 
     web.vm.provision :puppet do |puppet|
       puppet.manifest_file = "web.pp"
+      puppet.module_path = "modules"
       puppet.options="--verbose"
     end
   end
