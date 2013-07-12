@@ -51,3 +51,16 @@ file{"/etc/apache2/sites-enabled/opencart":
     require =>  Package["opencart"],
     notify  =>  Service["apache2"],
 }
+
+$db_host = "db"
+$db_user = "opencart"
+$db_password = "openpass"
+$db_database = "opencart"
+
+file { "/var/opencart/config.php":
+    content =>  template("/vagrant/config.php"),
+    owner   =>  www-data,
+    group   =>  www-data,
+    mode    =>  440,
+    require =>  Package["opencart"],
+}
