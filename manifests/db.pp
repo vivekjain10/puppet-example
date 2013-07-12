@@ -13,50 +13,9 @@ exec {"apt-get update":
 Exec["apt-get update"] -> Package <||>
 ## end of magic
 
-class mysql {
-  package { "mysql-server":
-    ensure => installed,
-  }
+import "database"
 
-  file {"/etc/mysql/conf.d/allow_external.cnf":
-    owner =>  mysql,
-    group =>  mysql,
-    mode  =>  0644,
-    content =>  template("/vagrant/allow_external.cnf"),
-    require => Package["mysql-server"],
-    notify => Service["mysql"],
-  }
-
-  service { "mysql":
-    ensure  =>  running,
-    enable  => true,
-    hasstatus => true,
-    hasrestart  => true,
-    require =>  Package["mysql-server"],
-  }
-}
-
-include mysql
-
-define setupdb($db, $username, $password) {
-
-  exec {"create-db-$db":
-    unless  => "mysqlshow -uroot $db",
-    command => "mysqladmin -uroot create $db",
-    path => "/usr/bin/",
-    require => Class["mysql"],
-  }
-
-  exec {"create-db-user-$db-$username":
-    unless  => "mysqlshow -u$username -p$password $db",
-    command => "mysql -uroot -e \"grant all on $db.* to '$username'@'%' identified by '$password'; grant all on $db.* to '$username'@'localhost' identified by '$password';\"",
-    path => "/usr/bin/",
-    require => Exec["create-db-$db"],
-  }
-
-}
-
-setupdb {"opencart-db":
+appdb {"opencart-db":
     db  =>  "opencart",
     username  =>  "opencart",
     password  =>  "openpass",
