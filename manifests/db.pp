@@ -22,4 +22,5 @@ file {"/etc/mysql/conf.d/allow_external.cnf":
     group =>  mysql,
     mode  =>  0644,
     content =>  template("/vagrant/allow_external.cnf"),
+    require => Package["mysql-server"],
 }
