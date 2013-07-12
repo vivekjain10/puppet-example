@@ -35,7 +35,8 @@ service { "mysql":
 }
 
 exec {"create opencart database":
-    unless  => "/usr/bin/mysqlshow -uroot opencart",
-    command => "/usr/bin/mysqladmin -uroot create opencart",
+    unless  => "mysqlshow -uroot opencart",
+    command => "mysqladmin -uroot create opencart",
+    path => "/usr/bin/",
     require => Service["mysql"],
 }
