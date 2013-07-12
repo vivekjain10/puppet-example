@@ -15,5 +15,3 @@ define appdb($db, $username, $password) {
   }
 
 }
-
-include mysql

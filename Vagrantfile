@@ -58,6 +58,11 @@ Vagrant.configure("2") do |config|
   config.vm.define :web do |web|
     web.vm.network :private_network, ip: "172.16.1.10"
     web.vm.hostname = "web"
+
+    web.vm.provision :puppet do |puppet|
+      puppet.manifest_file = "web.pp"
+      puppet.options="--verbose"
+    end
   end
 
   

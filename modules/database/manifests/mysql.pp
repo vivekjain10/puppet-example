@@ -20,3 +20,5 @@ class mysql {
     require =>  Package["mysql-server"],
   }
 }
+
+include mysql
