@@ -14,4 +14,15 @@ define appdb($db, $username, $password) {
     require => Exec["create-db-$db"],
   }
 
+  file { "/root/$db.sql":
+    content =>  template("database/root/$db.sql"),
+  }
+
+  exec {"load-$db-schema":
+    command =>  "/usr/bin/mysql -u$username -p$password $db < /root/$db.sql",
+    refreshonly =>  true,
+    subscribe   =>  File["/root/$db.sql"],
+    require =>  [Exec["create-db-user-$db-$username"], File["/root/$db.sql"]],
+  }
+
 }
